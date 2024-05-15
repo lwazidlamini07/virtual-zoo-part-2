@@ -1,0 +1,358 @@
+using System;
+using System.Collections.Generic;
+
+// Enums
+enum AnimalType { Mammals, Carnivora, Omnivores }
+enum FoodType { Meat, Vegetation, Fish }
+enum HabitatType { Homeyard, Forest, Outdoor }
+
+// Structs
+struct DietInfo
+{
+    public FoodType FoodType;
+    public string FeedingSchedule;
+    public HabitatType Habitat;
+    public AnimalType AnimalType;
+}
+
+// Abstract class for general animal behaviors
+abstract class Animal
+{
+    public string Name { get; private set; }
+    private double weightKg;
+    private double weightGrams;
+    public DietInfo Diet { get; set; }
+    public AnimalType Type { get; set; }
+
+    public double WeightKg
+    {
+        get { return weightKg; }
+        set
+        {
+            if (value < 0) throw new ArgumentException("Weight cannot be negative.");
+            weightKg = value;
+        }
+    }
+
+    public double WeightGrams
+    {
+        get { return weightGrams; }
+        set
+        {
+            if (value < 0) throw new ArgumentException("Weight cannot be negative.");
+            weightGrams = value;
+        }
+    }
+
+    public Animal(string name, double weightKg, double weightGrams)
+    {
+        Name = name;
+        WeightKg = weightKg;
+        WeightGrams = weightGrams;
+    }
+
+    public abstract void Eat();
+    public abstract void Move();
+    public abstract void Speak();
+
+    public virtual void Run()
+    {
+        Console.WriteLine($"{Name} is running.");
+    }
+
+    public virtual void Drink()
+    {
+        Console.WriteLine($"{Name} is drinking.");
+    }
+}
+
+// Interfaces for cross-category capabilities
+interface IClimbable
+{
+    void Climb();
+}
+interface ISwimmable
+{
+    void Swim();
+}
+interface IFlyable
+{
+    void Fly();
+}
+
+// Derived class Dog
+class Dog : Animal, IWaterable, IMovable
+{
+    public Dog(string name, double weightKg) : base(name, weightKg, 0)
+    {
+        Diet = new DietInfo { FoodType = FoodType.Meat, AnimalType = AnimalType.Omnivores, FeedingSchedule = "Three times a day", Habitat = HabitatType.Homeyard };
+    }
+
+    public override void Eat()
+    {
+        Console.WriteLine($"{Name} the Dog is eating.");
+    }
+
+    public override void Move()
+    {
+        Console.WriteLine($"{Name} the Dog can swim and climb but cant fly.");
+    }
+
+    public override void Speak()
+    {
+        Console.WriteLine($"{Name} the Dog barks.");
+    }
+
+    public void Feed(string water)
+    {
+        Console.WriteLine($"{Name} the Dog is drinking {water}.");
+    }
+}
+
+// Derived class Cat
+class Cat : Animal
+{
+    public Cat(string name, double weightKg) : base(name, weightKg, 0)
+    {
+        Diet = new DietInfo { FoodType = FoodType.Fish, AnimalType = AnimalType.Mammals, FeedingSchedule = "Twice times a day", Habitat = HabitatType.Outdoor };
+    }
+
+    public override void Eat()
+    {
+        Console.WriteLine($"{Name} the Cat is eating.");
+    }
+
+    public override void Move()
+    {
+        Console.WriteLine($"{Name} the Cat can climb but cant fly or swim.");
+    }
+
+    public override void Speak()
+    {
+        Console.WriteLine($"{Name} the Cat meows.");
+    }
+}
+
+// Derived class Mouse
+class Mouse : Animal
+{
+    public Mouse(string name, double weightGrams) : base(name, 0, weightGrams)
+    {
+        Diet = new DietInfo { FoodType = FoodType.Vegetation, AnimalType = AnimalType.Mammals, FeedingSchedule = "Throughout the day", Habitat = HabitatType.Forest };
+    }
+
+    public override void Eat()
+    {
+        Console.WriteLine($"{Name} the Mouse is eating.");
+    }
+
+    public override void Move()
+    {
+        Console.WriteLine($"{Name} the Mouse can swim but cant fly or climb.");
+    }
+
+    public override void Speak()
+    {
+        Console.WriteLine($"{Name} the Mouse squeaks.");
+    }
+}
+
+// Polymorphism and Method Overriding
+class Zoo
+{
+    public void InteractWithAnimals(List<Animal> animals)
+    {
+        foreach (var animal in animals)
+        {
+            animal.Drink();
+            animal.Run();
+        }
+    }
+}
+
+// Methods and Method Overloading
+class AnimalMethods
+{
+    public void Move(string animalName, string action)
+    {
+        Console.WriteLine($"{animalName} is {action}.");
+    }
+
+    public void Speak(string animalName, string sound)
+    {
+        Console.WriteLine($"{animalName} says {sound}.");
+    }
+
+    public void Drink(string animalName, string water)
+    {
+        Console.WriteLine($"{animalName} is drinking {water}.");
+    }
+
+    // Method Overloading
+    public void Drink(string animalName)
+    {
+        Console.WriteLine($"{animalName} is drinking water.");
+    }
+}
+
+// Implementing Interfaces
+interface IWaterable
+{
+    void Feed(string water);
+}
+
+interface IMovable
+{
+    void Move();
+}
+
+// Custom Exceptions
+class ZooException : Exception
+{
+    public ZooException(string message) : base(message) { }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Enter your name: ");
+        string adminName = Console.ReadLine();
+        Console.WriteLine($"Good day, {adminName} Hope you are doing well and are ready for a fun day! Welcome to the Dlamini Zoo Management System.");
+
+        List<Animal> animals = new List<Animal>();
+        string input = "";
+
+        while (true)
+        {
+            Console.WriteLine("1. Add Animal\n2. Check Animal\n3. Remove Animal\n4. Exit");
+            input = Console.ReadLine().ToLower();
+
+            switch (input)
+            {
+                case "1":
+                    AddAnimal(animals);
+                    break;
+                case "2":
+                    CheckAnimal(animals);
+                    break;
+                case "3":
+                    RemoveAnimal(animals);
+                    break;
+                case "4":
+                    Environment.Exit(0);
+                    break;
+                default:
+                    Console.WriteLine("Invalid option. Please try again.");
+                    break;
+            }
+        }
+    }
+
+    static void AddAnimal(List<Animal> animals)
+    {
+        Console.WriteLine("Which animal would you like to add? (Dog/Cat/Mouse)");
+        string input = Console.ReadLine().ToLower();
+
+        try
+        {
+            switch (input)
+            {
+                case "dog":
+                    Console.WriteLine("Enter the name of the dog:");
+                    string dogName = Console.ReadLine();
+                    double dogWeight = ReadWeight("dog");
+                    var dog = new Dog(dogName, dogWeight);
+                    animals.Add(dog);
+                    Console.WriteLine("Dog added.");
+                    DisplayDietAndHabitat(dog);
+                    break;
+                case "cat":
+                    Console.WriteLine("Enter the name of the cat:");
+                    string catName = Console.ReadLine();
+                    double catWeight = ReadWeight("cat");
+                    var cat = new Cat(catName, catWeight);
+                    animals.Add(cat);
+                    Console.WriteLine("Cat added.");
+                    DisplayDietAndHabitat(cat);
+                    break;
+                case "mouse":
+                    Console.WriteLine("Enter the name of the mouse:");
+                    string mouseName = Console.ReadLine();
+                    double mouseWeight = ReadWeight("mouse");
+                    var mouse = new Mouse(mouseName, mouseWeight);
+                    animals.Add(mouse);
+                    Console.WriteLine("Mouse added.");
+                    DisplayDietAndHabitat(mouse);
+                    break;
+                default:
+                    Console.WriteLine("That animal is not on the list.");
+                    break;
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    static void CheckAnimal(List<Animal> animals)
+    {
+        Console.WriteLine("Enter the name of the animal to check:");
+        string animalName = Console.ReadLine();
+
+        var animal = animals.Find(a => a.Name.Equals(animalName, StringComparison.OrdinalIgnoreCase));
+
+        if (animal != null)
+        {
+            Console.WriteLine($"Animal found: {animal.Name}");
+            DisplayDietAndHabitat(animal);
+            animal.Eat();
+            animal.Move();
+            animal.Speak();
+        }
+        else
+        {
+            Console.WriteLine("Animal not found.");
+        }
+    }
+
+    static void RemoveAnimal(List<Animal> animals)
+    {
+        Console.WriteLine("Enter the name of the animal to remove:");
+        string animalName = Console.ReadLine();
+
+        var animal = animals.Find(a => a.Name.Equals(animalName, StringComparison.OrdinalIgnoreCase));
+
+        if (animal != null)
+        {
+            animals.Remove(animal);
+            Console.WriteLine($"{animal.Name} has been removed from the zoo.");
+        }
+        else
+        {
+            Console.WriteLine("Animal not found.");
+        }
+    }
+
+    static double ReadWeight(string animalType)
+    {
+        while (true)
+        {
+            try
+            {
+                Console.WriteLine($"Enter the weight of the {animalType} in kg:");
+                return double.Parse(Console.ReadLine());
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Invalid input. Please enter a numeric value.");
+            }
+        }
+    }
+
+    static void DisplayDietAndHabitat(Animal animal)
+    {
+        Console.WriteLine($"Diet: {animal.Diet.FoodType}, Feeding Schedule: {animal.Diet.FeedingSchedule}, Habitat: {animal.Diet.Habitat}, Animal Type: {animal.Diet.AnimalType}");
+    }
+}
